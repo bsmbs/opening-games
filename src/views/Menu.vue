@@ -6,27 +6,34 @@
                 <h1>Opening Games</h1>
             </header>
             <main>
-                <Gamemode v-on:mode="mode($event)"></Gamemode>
+                <Gamemode v-on:mode="mode($event)" :class="{ darken: gamemode >= 0 }"></Gamemode>
                 <transition name="source">
                     <div v-if="gamemode >= 0">
-                        <Source @settings="sets($event)" />
+                        <Source ref="el" @settings="sets($event)" />
                         <div class="separator"></div>
-                        <Settings v-if="settings"></Settings>
+                        <Settings></Settings>
                     </div>
                 </transition>
             </main>
             <span style="flex: 1 1 0;"></span>
-            <div class="play" :class="{ disabled: gamemode < 0 || !settings || loading }" @click="play()">
-                Start
+
+            <div class="play"  @click="play()">
+                <font-awesome-icon icon="compact-disc" class="play-icon animated" v-if="loading"></font-awesome-icon>
+                <font-awesome-icon icon="play" class="play-icon" v-else></font-awesome-icon>
+                <span class="play-text">Start</span>
             </div>
             <footer>
-                <span>&#127279; pizza61 2020; Powered by <a href="https://animethemes.moe">animethemes.moe</a>. Source code on <a href="https://github.com/pizza61/opening-games">GitHub</a></span>
+                <span>Powered by <a href="https://animethemes.moe">animethemes.moe</a>. Source code on <a href="https://github.com/pizza61/opening-games">GitHub</a></span>
             </footer>
         </div>
     </div>
 </template>
 
 <script>
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faPlay, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
 import store from '../services/store';
 
 import Source from '@/components/Menu/Source';
@@ -34,9 +41,11 @@ import Gamemode from '@/components/Menu/Gamemode';
 import Settings from '@/components/Menu/Settings';
 import Progress from '@/components/Progress';
 
+library.add(faPlay, faCompactDisc);
+
 export default {
     components: { 
-        Source, Gamemode, Settings, Progress
+        Source, Gamemode, Settings, Progress, FontAwesomeIcon
     },
 
     data: () => ({
@@ -81,6 +90,11 @@ export default {
                 alert("Something went wrong")
             })
         }
+    },
+    watch: {
+        settings() {
+            window.scrollBy({ top: this.$refs.el.$el.scrollHeight, behavior: 'smooth' })
+        }
     }
 }
 </script>
@@ -115,19 +129,37 @@ main {
     flex-direction: column;
 }
 
-.play {
-    text-align: center;
-    background: #161d2b;
+.play {    
     transition: 200ms;
-    padding: 30px;
     font-size: 1.3em;
-    margin-bottom: 40px;
-    border: 1px solid #27334d;
+
+    z-index: 1;
     cursor: pointer;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 20px;
+    padding: 12px 24px;
+    box-shadow: 0 5px 10px #111;
+
+    background: #016641;
+    border-radius: 666px;
+
     &:hover {
-        background: #212b3f;
+        background: #01794d;
     }
+}
+
+.play-icon {
+    font-size: 16px;
+    padding-right: 12px;
+}
+
+.play-text {
+    font-size: .9em;
+    letter-spacing: 1px;
 }
 
 h1 {
@@ -151,10 +183,34 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    opacity: 0.6;
+    z-index: 0;
 
     a {
         text-decoration: none;
         color: lightskyblue;
+    }
+}
+
+@media screen and (max-width: 760px) {
+    .play {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+    }
+}
+
+.animated {
+    animation: spinning 1s;
+}
+
+@keyframes spinning {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
     }
 }
 

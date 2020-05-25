@@ -12,7 +12,7 @@
             </div>
             <div class="top" v-else>
                 <div class="song-indicator">
-                    <span class="correct">{{ songs.filter(x => x.correct).length }}</span> / <span class="incorrect">{{ songs.filter((x, i) => (!x.correct && current > i)).length }}</span></div>
+                    <span class="correct">{{ songs.filter(x => x.correct).length }}</span> : <span class="incorrect">{{ songs.filter((x, i) => (!x.correct && current > i)).length }}</span></div>
             </div>
         
             <!-- PLAYER -->
@@ -209,7 +209,9 @@ export default {
             
             // Fetch anime data from backend
             const resp = await fetch('/api/anime?id='+choice.id)
+            console.log("a")
             const anime = await resp.json();
+            console.log("b")
 
             // And more anime data from MAL
             const data = await getAnime(choice.id);
@@ -237,7 +239,8 @@ export default {
             await this.songs.push(selected);
             return selected;
 
-            } catch(e) { 
+            } catch(e) {
+                console.error(e)
                 if(this.fails++ == 3) return this.finished = true; // todo display error to user
                 return this.pick(); // Try again
             }
@@ -459,7 +462,7 @@ export default {
 */
 $bubble-background: #131a27;
 
-@media screen and (min-width: 760px) {
+@media screen and (min-width: 760px) { // DESKTOP
     .window {
         background: $bubble-background;
         border: 1px solid #27334d;
@@ -476,9 +479,9 @@ $bubble-background: #131a27;
     .swip {
         display: none;
     }
-}
+} // DESKTOP
 
-@media not screen and (min-width: 760px) {
+@media not screen and (min-width: 760px) { // MOBILE
     .window {
         background: $bubble-background;
         padding: 0;
@@ -658,6 +661,9 @@ $bubble-background: #131a27;
     color: white;
     transition: 200ms;
 
+    box-sizing: border-box;
+    width: 100%;
+
     &::placeholder {
         opacity: 0.4;
     }
@@ -682,7 +688,7 @@ $bubble-background: #131a27;
 // media
 @media screen and (min-width: 760px) {
     .choices {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))
     }
 
     .window {
