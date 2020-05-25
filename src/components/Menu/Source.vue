@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h3>Source</h3>
-        <div class="source-list">
+        <h3 :class="{darken: settings.choice >= 0}">Source</h3>
+        <div class="source-list" :class="{darken: settings.choice >= 0}">
             <div class="source-button" @click="settings.choice = 0" :class="{ active: settings.choice == 0 }">
                 <div class="source-text">MyAnimeList</div>
             </div>
@@ -19,7 +19,7 @@
             <div class="source-settings">
                 <transition name="input">
                     <div class="source-input" v-if="settings.choice == 0 || settings.choice == 1">
-                        <input class="list-input" type="text" placeholder="Username" @input="settings.username = $event.target.value"
+                        <input class="list-input" type="text" placeholder="Username" @input="settings.username = $event.target.value" @focus="center($event)"
                         >
                         <div class="lists">
                             <div class="list" 
@@ -63,6 +63,10 @@ export default {
             } else {
                 this.settings.chosenLists.push(n);
             }
+        },
+        center(e) {
+            //window.scrollTo(0, e.target.offsetHeight)
+            e.preventDefault();
         }
     },
     watch: {
@@ -188,6 +192,10 @@ h3 {
     .source-list {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .list-input {
+        padding: 16px 16px;
     }
 }
 </style>

@@ -16,9 +16,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 .disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.darken {
+    transition: .5s;
+    opacity: 0.5;
 }
 </style>
