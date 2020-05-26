@@ -151,6 +151,7 @@ export default {
         swipeVisible: false
     }),
     async mounted() {
+        window.scrollTo(0, 0);
         // Load database (user list)
         if(this.state.list.length == 0) { // List is empty for some reason
             // Fallback to MAL top 100

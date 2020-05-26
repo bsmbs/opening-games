@@ -9,15 +9,27 @@ export default {
         username: '',
         list: [],
         
+        gamemode: -1,
         settings: {
             choices: 4,
             video: false,
             unlimited: false,
             autoplay: false
+        },
+        source: {
+            choice: -1,
+            username: "",
+            chosenLists: ['WATCHING', 'COMPLETED']
         }
     },
     setSettings(obj) {
         this.state.settings = obj;
+    },
+    setSource(obj) {
+        this.state.source = obj
+    },
+    setGamemode(val) {
+        this.state.gamemode = val;
     },
     // LIST
     async fetchList(id, username) { // Fetch list from MAL (0) or AniList (1)

@@ -8,18 +8,18 @@
             <div class="source-button" @click="settings.choice = 1" :class="{ active: settings.choice == 1 }">
                 <div class="source-text">AniList</div>
             </div>
-            <div class="source-button" @click="settings.choice = 2" :class="{ active: settings.choice == 2 }">
+            <div class="source-button" @click="settings.choice = 2; next()" :class="{ active: settings.choice == 2 }">
                 <div class="source-text">MAL Top 100</div>
             </div>
-            <div class="source-button" @click="settings.choice = 3" :class="{ active: settings.choice == 3 }">
+            <div class="source-button" @click="settings.choice = 3; next()" :class="{ active: settings.choice == 3 }">
                 <div class="source-text">MAL Top 250</div>
             </div>
         </div>
         <div class="settings">
-            <div class="source-settings">
-                <transition name="input">
-                    <div class="source-input" v-if="settings.choice == 0 || settings.choice == 1">
-                        <input class="list-input" type="text" placeholder="Username" @input="settings.username = $event.target.value" @focus="center($event)"
+            <transition name="input">
+                <div class="source-settings" v-if="settings.choice == 0 || settings.choice == 1">
+                    <div class="source-input">
+                        <input class="list-input" type="text" placeholder="Username" :value="settings.username" @input="settings.username = $event.target.value" @keyup.enter="next()" @focus="center($event)"
                         >
                         <div class="lists">
                             <div class="list" 
@@ -31,18 +31,32 @@
                             </div>
                         </div>
                     </div>
-                </transition>
-            </div>
+                    <div class="next">
+                        <button class="next-button" @click="next()">
+                            <font-awesome-icon icon="forward" class="next-icon"></font-awesome-icon>
+                            <span class="next-text">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </transition>
         </div>
-        
-
     </div>
 </template>
 
 <script>
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faForward } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+import store from '../../services/store';
+
+library.add(faForward);
+
 export default {
+    components: { FontAwesomeIcon },
     props: ['value'],
     data: () => ({
+        state: store.state,
         settings: {
             choice: -1,
             username: "",
@@ -50,6 +64,9 @@ export default {
         },
         lists: ['WATCHING', 'COMPLETED', 'PLANNING'],
     }),
+    mounted() {
+        this.settings = this.state.source;
+    },
     filters: {
         capitalize(val) {
             return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
@@ -67,15 +84,14 @@ export default {
         center(e) {
             //window.scrollTo(0, e.target.offsetHeight)
             e.preventDefault();
+        },
+        next() {
+            store.setSource(this.settings);
+
+            this.$emit('next');
         }
     },
     watch: {
-        settings: {
-            handler(val) {
-                this.$emit('settings', val)
-            },
-            deep: true
-        }
     }
 }
 </script>
@@ -92,11 +108,15 @@ export default {
     cursor: pointer;
     background: #1b2436;
 
-    transition: 100ms;
+    transition: 200ms;
 
     border: 1px solid #27334d;
     margin: 10px;
     border-radius: 3px;
+
+    &:not(.active):hover {
+        background: #28334b;
+    }
 }
 
 .source-text {
@@ -146,6 +166,48 @@ h3 {
     }
 }
 
+.next {
+    display: flex;
+    justify-content: center;
+}
+.next-button {
+    color: inherit;
+    outline: none;
+    border: none;
+    font: inherit;
+
+    margin: 20px;
+    padding: 12px;
+    width: 30%;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+
+    background: #016641;
+    border-radius: 666px;
+
+    letter-spacing: 1px;
+
+    text-align: center;
+
+    cursor: pointer;
+    user-select: none;
+    transition: 200ms;
+
+    &:hover {
+        background: #01794d;
+    }
+}
+
+.next-icon {
+    font-size: 16px;
+    padding-right: 12px;
+}
+
+.next-text {
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
 // INPUT
 .list-input {
     border-top-left-radius: 3px;
@@ -190,7 +252,7 @@ h3 {
 // MEDIA
 @media screen and (max-width: 760px) {
     .source-list {
-        display: grid;
+        flex-direction: column;
         grid-template-columns: repeat(2, 1fr);
     }
 

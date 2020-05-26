@@ -81,6 +81,10 @@ export default {
     transition: 200ms;
 
     cursor: pointer;
+
+    &:not(.active):hover {
+        background: #28334b;
+    }
 }
 
 .mode-title {

@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import store from '../../services/store';
+
 export default {
    data: () => ({
        modes: [
@@ -34,22 +36,22 @@ export default {
                 active: false
            }
        ],
-       active: -1
+       active: -1,
+       state: store.state
    }),
    methods: {
        choose(id) {
            if(this.active == id) id = -1;
            this.active = id;
-           this.$emit('mode', id)
+           store.setGamemode(id);
+           
+           this.$emit('next');
        }
    }
 }
 </script>
 
 <style lang="scss" scoped>
-.modes {
-    //display: flex;
-}
 
 .mode {
     flex-grow: 1;

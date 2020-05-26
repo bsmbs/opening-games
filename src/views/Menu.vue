@@ -4,20 +4,26 @@
         <div class="content">
             <header>
                 <h1>Opening Games</h1>
+                <a href="https://github.com/pizza61/opening-games" target="_blank" class="header-icon-ct">
+                    <font-awesome-icon :icon="['fab', 'github']" class="header-icon"></font-awesome-icon>
+                </a>
             </header>
             <main>
-                <Gamemode v-on:mode="mode($event)" :class="{ darken: gamemode >= 0 }"></Gamemode>
-                <transition name="source">
-                    <div v-if="gamemode >= 0">
-                        <Source ref="el" @settings="sets($event)" />
-                        <div class="separator"></div>
-                        <Settings></Settings>
-                    </div>
+                <div class="steps">
+                    <Step 
+                        v-for="(s, i) in steps" 
+                        :key="i" :i="i+1" 
+                        @click.native="currentStep = i"
+                        :current="currentStep == i"
+                    >{{ s.title }}</Step>
+                </div>
+                <transition name="source" mode="out-in">
+                    <component style="position: relative;" :is="steps[currentStep].component" @next="currentStep++"></component>
                 </transition>
             </main>
             <span style="flex: 1 1 0;"></span>
 
-            <div class="play"  @click="play()">
+            <div class="play" :class="{ disabled: currentStep != 2 }" @click="play()">
                 <font-awesome-icon icon="compact-disc" class="play-icon animated" v-if="loading"></font-awesome-icon>
                 <font-awesome-icon icon="play" class="play-icon" v-else></font-awesome-icon>
                 <span class="play-text">Start</span>
@@ -32,6 +38,7 @@
 <script>
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faPlay, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import store from '../services/store';
@@ -39,46 +46,50 @@ import store from '../services/store';
 import Source from '@/components/Menu/Source';
 import Gamemode from '@/components/Menu/Gamemode';
 import Settings from '@/components/Menu/Settings';
+import Step from '@/components/Menu/Step';
 import Progress from '@/components/Progress';
 
-library.add(faPlay, faCompactDisc);
+library.add(faPlay, faCompactDisc, faGithub);
 
 export default {
     components: { 
-        Source, Gamemode, Settings, Progress, FontAwesomeIcon
+        Source, Gamemode, Settings, Progress, Step, FontAwesomeIcon
     },
 
     data: () => ({
         gamemode: -1,
         username: "",
-        settings: null,
         loading: false,
+
+        currentStep: 0,
+        steps: [{
+            title: "Select game",
+            component: "Gamemode"
+        }, {
+            title: "Source",
+            component: "Source"
+        }, {
+            title: "Settings",
+            component: "Settings"
+        }],
 
         state: store.state,
     }),
-    mounted() { },
-    destroyed() {
+    mounted() { 
+        window.scrollTo(0, 0);
     },
     methods: {
-        // Mode, soruce, settings
-        mode(id) {
-            this.gamemode = id;
-        },
-        sets(v) {
-            this.settings = v;
-        },
-
         // Start
         play() {
             // check
-            if(this.gamemode < 0 || !this.settings) return;
+            if(this.state.gamemode < 0 || this.state.source.choice == -1 || this.currentStep != 2) return;
             // Fetch user lists
             this.loading = true;
-            store.fetchList(this.settings.choice, this.settings.username)
+            store.fetchList(this.state.source.choice, this.state.source.username)
             .then(list => {
                 this.loading = false;
-                if(this.settings.choice == 0 || this.settings.choice == 1) {
-                    const filtered = list.filter(x => this.settings.chosenLists.indexOf(x.list) > -1);
+                if(this.state.source.choice == 0 || this.state.source.choice == 1) {
+                    const filtered = list.filter(x => this.state.source.chosenLists.indexOf(x.list) > -1);
                     this.state.list = filtered;
                 } else {
                     this.state.list = list;
@@ -93,7 +104,7 @@ export default {
     },
     watch: {
         settings() {
-            window.scrollBy({ top: this.$refs.el.$el.scrollHeight, behavior: 'smooth' })
+            //window.scrollBy({ top: this.$refs.el.$el.scrollHeight, behavior: 'smooth' })
         }
     }
 }
@@ -103,7 +114,7 @@ export default {
 .container {
     height: 100vh;
     position: relative;
-    background: #161d2bec;
+    //background: #161d2b;
 }
 
 .content {
@@ -127,6 +138,10 @@ export default {
 main {
     display: flex;
     flex-direction: column;
+}
+
+.steps {
+    display: flex;
 }
 
 .play {    
@@ -154,11 +169,11 @@ main {
 
 .play-icon {
     font-size: 16px;
-    padding-right: 12px;
 }
 
 .play-text {
     font-size: .9em;
+    padding-left: 16px;
     letter-spacing: 1px;
 }
 
@@ -166,6 +181,10 @@ h1 {
     display: block;
     padding: 20px;
     margin: 0;
+}
+
+.header-icon-ct {
+    display: none;
 }
 
 .separator {
@@ -200,8 +219,32 @@ footer {
     }
 }
 
+@media screen and (max-width: 644px) {
+    header {
+        background: #2c704b;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2);
+
+        h1 {
+            font-size: 1.2em;
+            padding: 16px 20px;
+        }
+    }
+
+    .header-icon-ct {
+        padding: 16px 20px;
+        font-size: 20px;
+        display: block;
+
+        color: inherit;
+        
+    }
+}
+
 .animated {
-    animation: spinning 1s;
+    animation: spinning 1s infinite linear;
 }
 
 @keyframes spinning {
@@ -215,10 +258,11 @@ footer {
 }
 
 .source-enter-active, .source-leave-active {
-    transition: opacity .2s;
+    transition: all .3s;
 }
 
 .source-enter, .source-leave-to {
+    margin-top: 50px;
     opacity: 0;
 }
 </style>
