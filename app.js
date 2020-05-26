@@ -7,10 +7,8 @@ const server = async () => {
     const a = await new Parser().all();
 
     const app = express();
-    
-    app.get('/', (req, res) => {
-        res.send("siema");
-    })
+
+    app.use(express.static(__dirname+'/dist'));
 
     app.get('/api/anime', async (req, res) => {
         try {
@@ -32,8 +30,13 @@ const server = async () => {
         }
     })
 
+    app.use((req, res) => {
+        res.sendFile(__dirname+'/dist/index.html');
+    })
+
     console.log("Listening at :"+port);
     app.listen(port);
 }
 
+console.log("Please wait...");
 server();
