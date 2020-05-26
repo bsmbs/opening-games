@@ -43,7 +43,6 @@ export default {
     watch: {
         settings: {
             handler(val) {
-                console.log("a?")
                 store.setSettings(val);
             },
             deep: true

@@ -152,7 +152,6 @@ export default {
             let list = [];
     
             for(let i = 1; i <= pages; i++) { // Fetch each page
-                console.log("f", i)
                 fetch(`https://api.jikan.moe/v3/top/anime/${i}/bypopularity`)
                 .then(resp => resp.json())
                 .then(data => {

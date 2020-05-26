@@ -210,9 +210,7 @@ export default {
             
             // Fetch anime data from backend
             const resp = await fetch('/api/anime?id='+choice.id)
-            console.log("a")
             const anime = await resp.json();
-            console.log("b")
 
             // And more anime data from MAL
             const data = await getAnime(choice.id);
@@ -373,7 +371,6 @@ export default {
             this.next(); // Next song
         },
         guessChoice(choice) {
-            console.log("hm?")
             this.song.guess = choice.title;
             this.song.correct = choice.correct;
 
